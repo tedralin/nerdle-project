@@ -11,9 +11,17 @@ body {
   height: 800px;
 }
 
-nav {
+header {
+  font-weight: bolder;
   text-align: center;
+}
+
+#error-line {
   margin: 10px;
+  padding: 10px;
+}
+#error-line__text {
+  color: maroon;
 }
 
 .board {
