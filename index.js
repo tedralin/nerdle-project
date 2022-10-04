@@ -42,9 +42,9 @@ const insertButtonValueinGrid = (buttonValue) => {
 
 const calculateNumbers = (num1, num2, oper) => {
     console.log(`Calculate num1 = ${num1};num2 = ${num2} with Oper = ${oper}` )
-    num1Val = Number(num1);
-    num2Val = Number(num2);
-    total = 0;
+    const num1Val = Number(num1);
+    const num2Val = Number(num2);
+    let total = 0;
     switch (oper) {
         case "*":
              total = num1Val * num2Val;
@@ -57,12 +57,32 @@ const calculateNumbers = (num1, num2, oper) => {
             break;
         case "/":
             if (num2Val === 0) {
-                return "Equation has zero divisor.  Please correct"
+                return "Error: Equation has zero divisor.  Please correct"
             }
             total = num1Val / num2Val;
         }
-    return total.toString();
+    return total;
    
+}
+
+const calculateInputTotal = (numberArr, operArr) => {
+    // the equation can have: min (2 numbers, 1 operand) & max(3 numbers, 2 operands)
+    // if 3 numbers and +/- goes before *or/, calculate second set first
+    let subTotal = 0;
+    if (numberArr.length === 3 && ["*", "/"].includes(operArr[1])) {
+        subTotal = calculateNumbers (numberArr[1], numberArr[2], operArr[1]);
+        if (Number.isInteger(subTotal)) {
+            subTotal = calculateNumbers (numberArr[0], subTotal.toString(), operArr[0]);
+        }
+    } else {
+        subTotal = calculateNumbers (numberArr[0], numberArr[1], operArr[0]);
+        if (Number.isInteger(subTotal)) {
+            subTotal = calculateNumbers (subTotal.toString(), numberArr[2], operArr[1]);
+        }
+    }
+
+    // subTotal is an Integer if statement is correct, otherwise, equation is invalid
+    return subTotal;
 }
 
 const validateEquation = () => {
@@ -72,18 +92,12 @@ const validateEquation = () => {
     let inputTotal = "";
     let isTotal = false;
     let numStr = "";
-    // the equation can have a max of 3 numbers and 2 operands
-    //  and a min of 2 numbers and 1 operand
+
+    // get the equation from the document
     for (let i = 0; i < 8; i++) {
         const currentBoxVal = boardRowBox[boardStart+i].value;
         switch (currentBoxVal) {
             case "=":
-                if (i === 0) {
-                    return "Please provide a number in the first box"
-                }
-                isTotal = true;
-                numberArr.push (numStr);
-                break;
             case "+":
             case "-":
             case "/":
@@ -91,38 +105,40 @@ const validateEquation = () => {
                 if (i === 0) {
                     return "Please provide a number in the first box"
                 }
-                operArr.push(currentBoxVal);
                 numberArr.push (numStr);
-                numStr = "";
+                if (currentBoxVal === "=") {
+                    isTotal = true;
+                } else {
+                    operArr.push(currentBoxVal);
+                    numStr = "";
+                }
                 break;
             default:
                 if (isTotal) {
                     inputTotal += currentBoxVal
-
                 } else {
                     numStr += currentBoxVal
                 }
     }  
 }
- // if 3 numbers and +/- goes before *or/, calculate second set first
- let subTotal = 0;
- if (numberArr.length === 3 && ["*", "/"].includes(operArr[1])) {
-    subTotal = calculateNumbers (numberArr[1], numberArr[2], operArr[1]);
-    subTotal = calculateNumbers (numberArr[0], subTotal, operArr[0]);
- } else {
-    subTotal = calculateNumbers (numberArr[0], numberArr[1], operArr[0]);
-    subTotal = calculateNumbers (subTotal, numberArr[2], operArr[1]);
- }
- if (subTotal == inputTotal) {
-    return "";
- } else {
-    return "Invalid Equation.  Equation should follow MDAS."
- }
+
+ const calcTotal =  calculateInputTotal(numberArr, operArr);
+ if (Number.isInteger(calcTotal)) {
+    if (calcTotal == inputTotal) {
+        return "";
+    } else {
+        return "Invalid Equation. Note that equation should follow MDAS."
+    }
+ } else if (typeof calcTotal === "string") {
+        return calcTotal;
+    } else {
+        return "Equation should have Integer for total"
+    }
 }
 
+const matchEqtnValues = () => {
 
-
-
+}
 
 validEqtnVarArr.forEach((button) => {
    
@@ -143,8 +159,7 @@ validEqtnVarArr.forEach((button) => {
             if (col === 7) {
                 const eqtnErr = validateEquation(eqArr)
                 if (eqtnErr === "") {
-                    console.log (1+2*3);
-                    checkEqMatch();
+                    matchEqtnValues();
                     row ++;
                 } else {
                     errorLine.innerHTML = eqtnErr;
