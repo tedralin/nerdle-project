@@ -35,12 +35,11 @@ const buttonColorArray = [];
 const buildButtonColorArray = ()  => {
     let buttonObject = {};
     for (let i=0; i < equationKeys.length; i++) {
+        buttonObject = {};
         buttonObject.buttonValue = equationKeys[i].innerHTML;
         buttonObject.buttonIndex = i;
         buttonObject.color = "";
-        console.log(buttonObject);
         buttonColorArray.push(buttonObject);
-        console.log(buttonColorArray.length);
     }
 }
 
