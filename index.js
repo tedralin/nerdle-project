@@ -22,23 +22,71 @@ initBoard();
 
 const validEqtnVarArr = document.querySelectorAll("button");
 const errorLine = document.getElementById("error-line__text");
-const boardRow = document.getElementsByClassName("board__row");
+const equationKeys = document.getElementsByClassName("equationChar");
 const boardRowBox = document.getElementsByClassName("board__row__box");
 
-const guessEquation = Equations[Math.floor(Math.random() * Equations.length)];
-console.log (guessEquation);
+const mysteryEqtnArr = Equations[Math.floor(Math.random() * Equations.length)].split("");
+console.log (mysteryEqtnArr);
 
 let row = 0;
 let col = 0;
-const eqArr = [];
+const buttonColorArray = [];
+
+const buildButtonColorArray = ()  => {
+    let buttonObject = {};
+    for (let i=0; i < equationKeys.length; i++) {
+        buttonObject.buttonValue = equationKeys[i].innerHTML;
+        buttonObject.buttonIndex = i;
+        buttonObject.color = "";
+        console.log(buttonObject);
+        buttonColorArray.push(buttonObject);
+        console.log(buttonColorArray.length);
+    }
+}
+
+buildButtonColorArray();
+console.log(buttonColorArray)
+
+
+// const keyColorArray = equationKeys.map((keyButton, index) => {
+//     return {
+//         buttonValue: keyButton.innerHTML,
+//         buttonIndex: index,
+//         color: ""
+//     }
+// })
+
 
 
 const insertButtonValueinGrid = (buttonValue) => {
-    console.log(`insertButtonValue of ${buttonValue} in row ${row} and col ${col}`)
+    // console.log(`insertButtonValue of ${buttonValue} in row ${row} and col ${col}`)
     const boardIndex = 8 * row + col;
-    // boardRow[row].children[col].value = buttonValue;
     boardRowBox[boardIndex].value = buttonValue;
+    
 }    
+
+const setBoardBoxColors = (eqtnArray, matchedArray) => {
+    const boardRowStart = 8 * row;
+    console.log(matchedArray)
+    for (let i = 0; i < matchedArray.length; i++) {
+        boardRowBox[boardRowStart+i].classList.add(matchedArray[i])
+    }
+
+    // change color also in the button keys
+    keyColorArray.forEach(button => {
+        for (let i=0; i < eqtnArray.length; i++) {
+            if (eqtnArray[i] === button.buttonValue) {
+                if (!(button.color === "green" || button.color === "gray")) {
+                    button.color = matchedArray(i)
+                    equationKeys[button.buttonIndex].classList.add(button.color)
+                }
+
+            }
+        }
+        
+    });
+
+}
 
 const calculateNumbers = (num1, num2, oper) => {
     console.log(`Calculate num1 = ${num1};num2 = ${num2} with Oper = ${oper}` )
@@ -68,6 +116,8 @@ const calculateNumbers = (num1, num2, oper) => {
 const calculateInputTotal = (numberArr, operArr) => {
     // the equation can have: min (2 numbers, 1 operand) & max(3 numbers, 2 operands)
     // if 3 numbers and +/- goes before *or/, calculate second set first
+    console.log(numberArr)
+    console.log(operArr)
     let subTotal = 0;
     if (numberArr.length === 3 && ["*", "/"].includes(operArr[1])) {
         subTotal = calculateNumbers (numberArr[1], numberArr[2], operArr[1]);
@@ -76,7 +126,7 @@ const calculateInputTotal = (numberArr, operArr) => {
         }
     } else {
         subTotal = calculateNumbers (numberArr[0], numberArr[1], operArr[0]);
-        if (Number.isInteger(subTotal)) {
+        if (Number.isInteger(subTotal) && numberArr.length === 3) {
             subTotal = calculateNumbers (subTotal.toString(), numberArr[2], operArr[1]);
         }
     }
@@ -85,84 +135,115 @@ const calculateInputTotal = (numberArr, operArr) => {
     return subTotal;
 }
 
-const validateEquation = () => {
+const getEquationfromCurrentRow = () => {
     const boardStart = 8 * row;
-    const numberArr = [];
-    const operArr = [];
-    let inputTotal = "";
-    let isTotal = false;
-    let numStr = "";
+    const equationArr = [];
 
     // get the equation from the document
     for (let i = 0; i < 8; i++) {
-        const currentBoxVal = boardRowBox[boardStart+i].value;
-        switch (currentBoxVal) {
-            case "=":
-            case "+":
-            case "-":
-            case "/":
-            case "*":                
-                if (i === 0) {
-                    return "Please provide a number in the first box"
-                }
-                numberArr.push (numStr);
-                if (currentBoxVal === "=") {
-                    isTotal = true;
-                } else {
-                    operArr.push(currentBoxVal);
-                    numStr = "";
-                }
-                break;
-            default:
-                if (isTotal) {
-                    inputTotal += currentBoxVal
-                } else {
-                    numStr += currentBoxVal
-                }
-    }  
+        equationArr.push(boardRowBox[boardStart+i].value)
+    }
+   return equationArr;
 }
 
- const calcTotal =  calculateInputTotal(numberArr, operArr);
- if (Number.isInteger(calcTotal)) {
-    if (calcTotal == inputTotal) {
-        return "";
-    } else {
-        return "Invalid Equation. Note that equation should follow MDAS."
+const validateEquation = (eqtnArray) => {
+    const validOperands = ["+", "-", "*", "/"];
+    console.log(eqtnArray);
+    if (validOperands.includes(eqtnArray[0])) {
+        return "Please provide a number in the first box"
     }
- } else if (typeof calcTotal === "string") {
-        return calcTotal;
-    } else {
-        return "Equation should have Integer for total"
+        
+    const eqtnVariables = eqtnArray.join("").split("=");
+    if (eqtnVariables.length !== 2) {
+        return "Equation should have exactly 1 equals char"
     }
+    const eqtnVarChars = eqtnVariables[0].split("");
+    const numberArr = [];
+    const operArr = [];
+    let numStr = "";
+    
+    eqtnVarChars.forEach((eqtnChar) => {
+        if (validOperands.includes(eqtnChar)) {
+            numberArr.push (numStr);
+            operArr.push(eqtnChar);
+            numStr = "";
+        } else {
+            numStr += eqtnChar
+        }
+    })
+    numberArr.push (numStr);
+
+    const calcTotal =  calculateInputTotal(numberArr, operArr);
+    if (Number.isInteger(calcTotal)) {
+        if (calcTotal == eqtnVariables[1]) {
+            return "";
+        } else {
+            return "Invalid Equation. Note that equation should follow MDAS."
+        }
+    } else if (typeof calcTotal === "string") {
+            return calcTotal;
+        } else {
+            return "Equation should have Integer for total"
+        }
 }
 
-const matchEqtnValues = () => {
+const matchEqtnValues = (eqtnArray) => {
+    //compare each char between mystery equation and player's guess
+    const matchArray = [];
+    const unmatchedArray = [];  // this contains all other chars in mysteryeqtn that are unmatched
+    for (let i=0; i < eqtnArray.length; i++) {
+        if (eqtnArray[i] === mysteryEqtnArr[i]) {
+            matchArray.push("green");
+        } else if (!mysteryEqtnArr.includes(eqtnArray[i])) {
+            matchArray.push("gray");
+            unmatchedArray.push(mysteryEqtnArr[i]);
+        } else {
+            matchArray.push("yellow");
+            unmatchedArray.push(mysteryEqtnArr[i]);
+        }
+    }
 
+    // yellow can turn to gray if it was already matched to a green
+
+    for (let i=0; i < matchArray.length; i++) {
+        if (matchArray[i] === "yellow" && !unmatchedArray.includes(eqtnArray[i])) {
+            matchArray[i] = "gray";
+        }
+    }
+
+    console.log(`Mystery Equation: ${mysteryEqtnArr}`)
+    console.log(`Input Equation: ${eqtnArray}`)
+    console.log(`Match Array: ${matchArray}`)
+    console.log(`Unmatched Array: ${unmatchedArray}`)
+
+    return matchArray;
 }
 
 validEqtnVarArr.forEach((button) => {
-   
     const validEqtnChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=" ];
     button.addEventListener("click", (event) => {
         event.preventDefault();
         if (validEqtnChars.includes(button.innerHTML)) {
-            eqArr.push(insertButtonValueinGrid(button.innerHTML));
+            insertButtonValueinGrid(button.innerHTML);
             if (col < 7) {
                 col++;
             };
         }
         if (button.innerHTML === "Delete") {
             col = col - 1;
-            eqArr.pop(insertButtonValueinGrid(""));
+            insertButtonValueinGrid("")
         }
         if (button.innerHTML === "Enter") {
             if (col === 7) {
-                const eqtnErr = validateEquation(eqArr)
-                if (eqtnErr === "") {
-                    matchEqtnValues();
+                const eqtnArray = getEquationfromCurrentRow();
+                const eqtnError = validateEquation(eqtnArray);
+                if (eqtnError === "") {
+                    const matchedArray = matchEqtnValues(eqtnArray);
+                    setBoardBoxColors(eqtnArray, matchedArray);
                     row ++;
+                    col = 0;
                 } else {
-                    errorLine.innerHTML = eqtnErr;
+                    errorLine.innerHTML = eqtnError;
                 }
             } else {
                 errorLine.innerHTML = "Your guess is not complete.  Please fill in all boxes in the row."
