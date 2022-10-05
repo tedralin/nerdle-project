@@ -4,59 +4,66 @@
     box-sizing: border-box;
     font-size: 20px;
     font-family: Arial, Helvetica, sans-serif;
+    background-color: lightgray;
+    // color: darkslategray;
+    align-items: center;
 }
 
-$match-color: #A3E1DE;
-$unmatch-color: rgb(35, 32, 32);
-$partial-color: maroon ;    
-
-body {
-    width: 550px;
-    height: 800px;
-}
 header {
     font-weight: bolder;
     text-align: center;
+    padding: 20px;
 }
 #error-line {
-    margin: 10px;
     padding: 10px;
+    text-align: center;
     &__text {
         color: maroon;
     }
 }
 
 .board {
-    border: 1px solid blue;
-    padding: 20px;
-    margin: 20px;
+    // border: 1px solid blue;
+    padding: 10px;
+    margin: 10px;
     display: flex;
     flex-direction: center;
+    justify-content: center;
     &__row {
         display: grid;
         grid-template-columns: repeat(8, 1fr);
-        // margin: 20px;
         &__box {
             border: 2px solid gray;
             border-radius: 5px;
             margin: 2px;
             text-align: center;
-            // font-size: 2.5 rem;
             font-weight: bold;
-            background-color: beige;
+            background-color: #989484;
             width: 2.8rem;
             height: 2.8rem;
+            @media screen and (min-width: 350px) and (max-width: 500px) {
+                width: 2rem;
+                height: 2rem;
+            }
+            @media screen and  (max-width: 350px) {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            @media screen and  (max-height: 600px) {
+                width: 2rem;
+                height: 2rem;
+            }
         }
     }
 }
 
 .key {
-    border: 1px solid black;
     padding: 10px;
     button {
         width: 2rem;
         height: 2rem;
         margin: 2px;
+        border-radius: 5px;
     }
     &__row1 {
         display: flex;
@@ -66,20 +73,43 @@ header {
     &__row2 {
         display: flex;
         justify-content: center;
-        .key__row2__enter, .key__row2__delete {
-            width: 3rem;
+        .key__row2__enter {
+            width: 3.2rem;
+            background-color: #A3E1DE;;
         }
+        .key__row2__delete {
+            width: 3.2rem;
+        }
+
+    }
+}
+
+#newgame {
+    // border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    &--button {
+        background-color: darkseagreen;
+        border-radius: 5px;
+        width: 130px;
+        text-align: center;
+        margin: 10px;
+        padding: 10px;
+
     }
 }
 
 .yellow {
-    background-color: rgb(212, 212, 126);
+    background-color: #820458;
+    color: whitesmoke;
 }
 .gray {
-    background-color: darkgray;
+    background-color: #161803;
+    color: whitesmoke;
 }
 .green {
-    background-color: lightgreen;
+    background-color: #398874;
+    color: whitesmoke;
 }
 
 
