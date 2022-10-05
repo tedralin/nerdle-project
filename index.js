@@ -72,17 +72,16 @@ const setBoardBoxColors = (eqtnArray, matchedArray) => {
     }
 
     // change color also in the button keys
-    keyColorArray.forEach(button => {
+    buttonColorArray.forEach(button => {
         for (let i=0; i < eqtnArray.length; i++) {
             if (eqtnArray[i] === button.buttonValue) {
-                if (!(button.color === "green" || button.color === "gray")) {
-                    button.color = matchedArray(i)
+                // hierarchy of colors: green, gray, yellow
+                if (button.color !== "green") {
+                    button.color = matchedArray[i]
                     equationKeys[button.buttonIndex].classList.add(button.color)
                 }
-
             }
         }
-        
     });
 
 }
