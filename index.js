@@ -106,7 +106,7 @@ const setBoardBoxColors = (eqtnArray, matchedArray) => {
                     button.color = matchedArray[i]
                     equationKeys[button.buttonIndex].classList.add(button.color)
                 }
-                console.log(`button key ${button.buttonValue} classList=${ equationKeys[button.buttonIndex].classList}`)
+                // console.log(`button key ${button.buttonValue} classList=${ equationKeys[button.buttonIndex].classList}`)
             }
         }
     });
@@ -230,10 +230,21 @@ const matchEqtnValues = (eqtnArray) => {
     }
 
     // yellow can turn to gray if it was already matched to a green
+    // or if it is already matched to an earlier yellow
 
     for (let i=0; i < matchArray.length; i++) {
-        if (matchArray[i] === "yellow" && !unmatchedArray.includes(eqtnArray[i])) {
-            matchArray[i] = "gray";
+        if (matchArray[i] === "yellow") {
+            if (!unmatchedArray.includes(eqtnArray[i])) {
+                matchArray[i] = "gray";
+            } else {
+                //remove it from unmatchedArray by changing its value to P (partial)
+                for (let j=0; j < unmatchedArray.length; j++) {
+                    if (eqtnArray[i] === unmatchedArray[j]) {
+                        unmatchedArray[j] = "P";
+                        j = 10;
+                    }
+                }
+            }
         }
     }
 
@@ -241,9 +252,9 @@ const matchEqtnValues = (eqtnArray) => {
     console.log(`Input Equation: ${eqtnArray}`)
     console.log(`Match Array: ${matchArray}`)
     console.log(`Unmatched Array: ${unmatchedArray}`)
-
     return matchArray;
 }
+
 
 const validateAndMatchRow = () => {
     const eqtnArray = getEquationfromCurrentRow();
@@ -261,7 +272,6 @@ const validateAndMatchRow = () => {
     if (row === 6) {
         errorLine.innerHTML = "Sorry, you have reached your maximum number of guesses."
     }
-
 }
 
 const initializeNewGame = () => {
@@ -310,7 +320,7 @@ Array.from(boardRowBoxes).forEach((box, index) => {
 
         row = Math.floor(index/8)
         col = index%8;
-        console.log(`Index = ${index}; row=${row}; col = ${col}`)
+        // console.log(`Index = ${index}; row=${row}; col = ${col}`)
 
         // if value entered is invalid, clear value; else move focus to next
         if ((col===0 && !validInFirstBox.includes(box.value)) || (col !==0 && !validEqtnChars.includes(box.value))) {
