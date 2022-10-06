@@ -25,17 +25,20 @@ const initBoard = () => {
 const validEqtnVarArray = document.querySelectorAll("button");
 const errorLine = document.getElementById("error-line__text");
 const equationKeys = document.getElementsByClassName("equationChar");
-const boardRowBoxes = document.getElementsByClassName("board__row__box");
 const newGameButton = document.getElementById("newgame--button")
+const boardRowBoxes = document.getElementsByClassName("board__row__box");
 
-let mysteryEqtnArray = [];
+let mysteryEqtnArray = Equations[Math.floor(Math.random() * Equations.length)].split("");
+console.log(`Mystery Equation = ${mysteryEqtnArray}`)
 
 let row = 0;
 let col = 0;
+let isEndGame = false;
 const buttonColorArray = [];
 
 const buildButtonColorArray = ()  => {
     let buttonObject = {};
+
     for (let i=0; i < equationKeys.length; i++) {
         buttonObject = {};
         buttonObject.buttonValue = equationKeys[i].innerHTML;
@@ -90,7 +93,7 @@ const clearButtonValueinGrid = () => {
 const setBoardBoxColors = (eqtnArray, matchedArray) => {
     const boardRowStart = 8 * row;
     let isFullyMatched = true;
-    console.log(matchedArray)
+
     for (let i = 0; i < matchedArray.length; i++) {
         boardRowBoxes[boardRowStart+i].classList.add(matchedArray[i])
         if (matchedArray[i] !== "green") {
@@ -114,7 +117,7 @@ const setBoardBoxColors = (eqtnArray, matchedArray) => {
 }
 
 const calculateNumbers = (num1, num2, oper) => {
-    console.log(`Calculate num1 = ${num1};num2 = ${num2} with Oper = ${oper}` )
+    // console.log(`Calculate num1 = ${num1};num2 = ${num2} with Oper = ${oper}` )
     const num1Val = Number(num1);
     const num2Val = Number(num2);
     let total = 0;
@@ -171,7 +174,7 @@ const getEquationfromCurrentRow = () => {
 
 const validateEquation = (eqtnArray) => {
     const validOperands = ["+", "-", "*", "/"];
-    console.log(eqtnArray);
+
     if (eqtnArray.length !== 8) {
         return "Your guess is not complete.  Please fill in all boxes in the row."
     }
@@ -274,11 +277,45 @@ const validateAndMatchRow = () => {
     }
 }
 
+const removeColorsfromButton = () => {
+    for (let i = 0; i < equationKeys.length; i++) {
+        equationKeys[i].classList.remove("green");
+        equationKeys[i].classList.remove("yellow");
+        equationKeys[i].classList.remove("gray");
+    }
+}
+
+const resetBoard = () => {
+    for (let i=0; i < boardRowBoxes.length; i++) {
+        boardRowBoxes[i].value = "";
+        boardRowBoxes[i].classList.remove("green");
+        boardRowBoxes[i].classList.remove("yellow");
+        boardRowBoxes[i].classList.remove("gray");
+
+        if (i < 8) {
+            boardRowBoxes[i].disabled = false;
+        } else {
+            boardRowBoxes[i].disabled = true;
+        }
+    }
+};
+    
+
 const initializeNewGame = () => {
     initBoard();
     buildButtonColorArray();
-    //set focus on first board box
+}
+
+const resetGame = () => {
+    resetBoard();
+    for (let i=0; i < buttonColorArray.length; i++) {
+        buttonColorArray[i].color = "";
+    }
+    removeColorsfromButton();
     boardRowBoxes[0].focus();
+    row=0;
+    col=0;
+    errorLine.innerHTML ="";
     mysteryEqtnArray = Equations[Math.floor(Math.random() * Equations.length)].split("");
     console.log(`Mystery Equation = ${mysteryEqtnArray}`)
 }
@@ -312,7 +349,6 @@ validEqtnVarArray.forEach((button) => {
 
 //Listening for inputs for each BoardRowBox
 Array.from(boardRowBoxes).forEach((box, index) => {
-
     box.addEventListener("input", (event) => {
         const validEqtnChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=" ];
         const validInFirstBox = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -332,6 +368,7 @@ Array.from(boardRowBoxes).forEach((box, index) => {
             }
         }
     })
+
     // if Mousedown is pressed, set current col
     box.addEventListener("mousedown", (event) => {
         if (!box.disabled) {
@@ -339,7 +376,6 @@ Array.from(boardRowBoxes).forEach((box, index) => {
             col = index%8;
         }
     })
-
 
     // if Backspace is pressed
     box.addEventListener("keydown", (event) => {
@@ -356,4 +392,8 @@ Array.from(boardRowBoxes).forEach((box, index) => {
             validateAndMatchRow();
         }
     })
+})
+
+newGameButton.addEventListener("click", (event) => {
+    resetGame();
 })

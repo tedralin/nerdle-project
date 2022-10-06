@@ -16,6 +16,7 @@ header {
 
 #error-line {
   padding: 10px;
+  height: 30px;
   text-align: center;
 }
 #error-line__text {
