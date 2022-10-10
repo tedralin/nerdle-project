@@ -265,7 +265,8 @@ const validateAndMatchRow = () => {
     if (eqtnError === "") {
         const matchedArray = matchEqtnValues(eqtnArray);
         if (setBoardBoxColors(eqtnArray, matchedArray)) {
-            errorLine.innerHTML = "Congratulations! You guessed the equation"
+            errorLine.innerHTML = "Congratulations! You guessed the equation";
+            // startConfetti();
         } else {
             setUpNextRow();            
         }
@@ -397,3 +398,15 @@ Array.from(boardRowBoxes).forEach((box, index) => {
 newGameButton.addEventListener("click", (event) => {
     resetGame();
 })
+
+const startConfetti=()=>{
+    setTimeout(function(){
+            confetti.start()
+    },1000  );
+}    
+
+// const stopConfetti = () => {
+//     setTimeout(function() {
+//         confetti.stop()
+//     }, 5000); // 5000 is time that after 5 second stop the confetti ( 5000 = 5 sec)
+// };
