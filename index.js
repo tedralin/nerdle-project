@@ -207,12 +207,12 @@ const validateEquation = (eqtnArray) => {
         if (calcTotal == eqtnVariables[1]) {
             return "";
         } else {
-            return "Invalid Equation. Note that equation should follow MDAS."
+            return "Invalid Equation. Please check your total."
         }
     } else if (typeof calcTotal === "string") {
             return calcTotal;
         } else {
-            return "Equation should have Integer for total"
+            return "Equation should have an Integer for its total"
         }
 }
 
